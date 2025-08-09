@@ -155,7 +155,9 @@ const LoginPage = () => {
             {/* Header */}
             <header className="bg-blue-700 text-white shadow sticky top-0 z-20">
                 <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <div className="text-xl font-semibold">Haddocks</div>
+                    <Link to="/" className="text-xl font-semibold hover:text-blue-200 transition-colors">
+                        Haddocks
+                    </Link>
                     {/* Hamburger menu - only visible on small screens */}
                     <button type="button" className="md:hidden p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-label="Open main menu">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
