@@ -109,7 +109,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Register New Account</CardTitle>
-          <CardDescription>Create your new bank account.</CardDescription>
+          <CardDescription>Create your new account.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

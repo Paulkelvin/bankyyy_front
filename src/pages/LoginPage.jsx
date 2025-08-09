@@ -155,7 +155,7 @@ const LoginPage = () => {
             {/* Header */}
             <header className="bg-blue-700 text-white shadow sticky top-0 z-20">
                 <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <div className="text-xl font-semibold">Banky</div>
+                    <div className="text-xl font-semibold">Haddocks</div>
                     {/* Hamburger menu - only visible on small screens */}
                     <button type="button" className="md:hidden p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-label="Open main menu">
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -181,7 +181,7 @@ const LoginPage = () => {
                          <Card className="bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200/50">
                             <CardHeader className="pt-6 pb-4">
                                 <CardTitle className="text-center text-xl font-semibold text-gray-800">
-                                    {isRegisterMode ? 'Register New Account' : 'Banky App Login'}
+                                    {isRegisterMode ? 'Register New Account' : 'Haddocks App Login'}
                                 </CardTitle>
                                 <CardDescription className="text-center text-gray-500 text-sm">
                                     {isRegisterMode ? 'Create your account' : 'Enter your credentials below'}
@@ -516,7 +516,7 @@ const LoginPage = () => {
                 <div className="container mx-auto max-w-6xl px-4">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
-                            <h3 className="text-white text-lg font-semibold mb-4">About Banky</h3>
+                            <h3 className="text-white text-lg font-semibold mb-4">About Haddocks</h3>
                             <p className="text-sm">Your trusted partner in financial services, providing innovative solutions for all your banking needs.</p>
                         </div>
                         <div>
@@ -531,7 +531,7 @@ const LoginPage = () => {
                         <div>
                             <h3 className="text-white text-lg font-semibold mb-4">Contact Us</h3>
                             <ul className="space-y-2 text-sm">
-                                <li>Email: support@banky.com</li>
+                                <li>Email: support@haddocks.com</li>
                                 <li>Phone: +1 (555) 123-4567</li>
                                 <li>Address: 123 Finance St, City</li>
                             </ul>
@@ -558,7 +558,7 @@ const LoginPage = () => {
                         </div>
                     </div>
                     <div className="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
-                        <p>&copy; 2024 Banky. All rights reserved.</p>
+                        <p>&copy; 2024 Haddocks. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
