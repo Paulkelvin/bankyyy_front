@@ -188,6 +188,7 @@ const DashboardPage = ({ onNavigateToProfile }) => {
                                             <>
                                                 <TransactionForm title="Deposit" accounts={accounts} transactionType="deposit" onTransactionSuccess={() => handleActionSuccess('Deposit successful!')} />
                                                 <TransactionForm title="Withdrawal" accounts={accounts} transactionType="withdrawal" onTransactionSuccess={() => handleActionSuccess('Withdrawal successful!')} />
+                                                <CreateAccountForm onAccountCreated={() => handleActionSuccess('Account created successfully!')} />
                                             </>
                                         )}
                                         <UnifiedTransferForm
@@ -198,7 +199,6 @@ const DashboardPage = ({ onNavigateToProfile }) => {
                                         />
                                     </div>
                                 )}
-                    <CreateAccountForm onAccountCreated={() => handleActionSuccess('Account created successfully!')} />
                 </aside>
             </main>
         </div>
