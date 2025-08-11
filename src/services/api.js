@@ -6,6 +6,13 @@ const API_BASE_URL = isDevelopment
     ? '/api'  // Use proxy in development
     : import.meta.env.VITE_API_URL || 'https://bankyyy.onrender.com/api';  // Use env variable or fallback
 
+// Add a global logout handler (to be set by AuthContext)
+let globalLogoutHandler = null;
+
+export function setApiLogoutHandler(logoutFn) {
+    globalLogoutHandler = logoutFn;
+}
+
 // API Service Object
 const api = {
     // Central request helper function (cleaned up)
@@ -79,6 +86,10 @@ const api = {
                 const error = new Error(errorMessage);
                 error.status = response.status;
                 error.data = data;
+                // --- Global 401/403 handler ---
+                if ((error.status === 401 || error.status === 403) && typeof globalLogoutHandler === 'function') {
+                    globalLogoutHandler();
+                }
                 throw error;
             }
             // console.log(`API Request Success: ${options.method || 'GET'} ${url} (Status: ${response.status})`);

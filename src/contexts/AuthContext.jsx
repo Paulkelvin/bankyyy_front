@@ -1,6 +1,7 @@
 // src/contexts/AuthContext.jsx
 import React, { useState, createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import api from '../services/api.js'; // Import the API service
+import { setApiLogoutHandler } from '../services/api.js';
 
 // Create the context
 const AuthContext = createContext(null);
@@ -30,6 +31,18 @@ export const AuthProvider = ({ children }) => {
         } else {
             // console.log("AuthContext: No initial state found in localStorage.");
         }
+    }, []); // Run only once
+
+    // Effect to set up global API logout handler
+    useEffect(() => {
+        // Set up global API logout handler
+        setApiLogoutHandler(() => {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('authUser');
+            window.location.href = '/'; // Redirect to homepage
+        });
     }, []); // Run only once
 
     // Login function (returns data for LoginPage to handle)
