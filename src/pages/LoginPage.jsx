@@ -34,6 +34,8 @@ const LoginPage = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const timeoutRef = useRef(null);
     const registerAreaRef = useRef(null);
+    const [username, setUsername] = useState('');
+    const [fullName, setFullName] = useState('');
 
     useEffect(() => { return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }; }, []);
     useEffect(() => { if (processStatus === STATUS_SUCCESS) { timeoutRef.current = setTimeout(() => { setProcessStatus(STATUS_IDLE); setFeedbackMessage(''); }, 3500); } return () => { if (timeoutRef.current && processStatus === STATUS_SUCCESS) clearTimeout(timeoutRef.current); }; }, [processStatus]);
@@ -89,7 +91,8 @@ const LoginPage = () => {
         setFeedbackMessage('Registering new account...');
 
         const userData = {
-            name: name.trim(),
+            username: username.trim(),
+            fullName: fullName.trim(),
             email: email.trim(),
             password: password
         };
@@ -99,9 +102,8 @@ const LoginPage = () => {
             if (response.success) {
                 setProcessStatus(STATUS_SUCCESS);
                 setFeedbackMessage('Registration successful! Logging you in...');
-                
                 // After successful registration, attempt to log in
-                const loginResult = await login(userData);
+                const loginResult = await login({ email: userData.email, password: userData.password });
                 if (loginResult && loginResult.token && loginResult.user) {
                     setAuthState(loginResult.token, loginResult.user);
                 } else {
@@ -247,40 +249,52 @@ const LoginPage = () => {
 
                                         {/* Registration Form Fields */}
                                         <div className="space-y-1">
-                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                                            <Input 
-                                                id="name" 
-                                                type="text" 
-                                                placeholder="Your Full Name" 
-                                                value={name} 
-                                                onChange={(e) => setName(e.target.value)} 
-                                                required 
-                                                disabled={isLoading} 
+                                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                                            <Input
+                                                id="username"
+                                                type="text"
+                                                placeholder="Choose a username"
+                                                value={username}
+                                                onChange={(e) => setUsername(e.target.value)}
+                                                required
+                                                disabled={isLoading}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
+                                            <Input
+                                                id="fullName"
+                                                type="text"
+                                                placeholder="Your Full Name"
+                                                value={fullName}
+                                                onChange={(e) => setFullName(e.target.value)}
+                                                required
+                                                disabled={isLoading}
                                             />
                                         </div>
                                         <div className="space-y-1">
                                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                                            <Input 
-                                                id="email" 
-                                                type="email" 
-                                                placeholder="you@example.com" 
-                                                value={email} 
-                                                onChange={(e) => setEmail(e.target.value)} 
-                                                required 
-                                                disabled={isLoading} 
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                placeholder="you@example.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                                disabled={isLoading}
                                             />
                                         </div>
                                         <div className="space-y-1">
                                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
                                             <div className="relative">
-                                                <Input 
-                                                    id="password" 
+                                                <Input
+                                                    id="password"
                                                     type={showPassword ? "text" : "password"}
-                                                    placeholder="••••••••" 
-                                                    value={password} 
-                                                    onChange={(e) => setPassword(e.target.value)} 
-                                                    required 
-                                                    disabled={isLoading} 
+                                                    placeholder="••••••••"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    required
+                                                    disabled={isLoading}
                                                 />
                                                 <button
                                                     type="button"
