@@ -186,6 +186,9 @@ const api = {
     },
     // --- End OTP Transfer Flow ---
 
+    // --- Transactions (Delete All) ---
+    deleteAllTransactions() { return this.request('/transactions/all', { method: 'DELETE' }); },
+
 
     // --- Old Direct Transfer Functions (Commented Out - Use OTP flow) ---
     // transfer(transferData) {

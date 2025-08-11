@@ -28,6 +28,10 @@ const DashboardPage = ({ onNavigateToProfile }) => {
     const [historyFilterAccountId, setHistoryFilterAccountId] = useState(null);
     // Optional: State for success/error messages shown at the top level
     const [globalMessage, setGlobalMessage] = useState({ type: '', text: '' });
+    // Add state for delete transactions panel feedback
+    const [isDeletingTransactions, setIsDeletingTransactions] = useState(false);
+    const [deleteTxFeedback, setDeleteTxFeedback] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 
     // --- Data Fetching Callbacks ---
@@ -189,6 +193,62 @@ const DashboardPage = ({ onNavigateToProfile }) => {
                                                 <TransactionForm title="Deposit" accounts={accounts} transactionType="deposit" onTransactionSuccess={() => handleActionSuccess('Deposit successful!')} />
                                                 <TransactionForm title="Withdrawal" accounts={accounts} transactionType="withdrawal" onTransactionSuccess={() => handleActionSuccess('Withdrawal successful!')} />
                                                 <CreateAccountForm onAccountCreated={() => handleActionSuccess('Account created successfully!')} />
+                                                {/* New Delete Transactions Panel */}
+                                                <div className="bg-white border border-red-200 rounded-lg p-4 mt-4">
+                                                    <h3 className="text-lg font-semibold text-red-600 mb-2 flex items-center">
+                                                        <svg className="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        Delete All Transaction History
+                                                    </h3>
+                                                    <p className="text-sm text-gray-600 mb-2">This will permanently delete all your transaction history. Your accounts and balances will remain, but your transaction list will be empty (like a new account).</p>
+                                                    {deleteTxFeedback && (
+                                                        <Alert variant={deleteTxFeedback.startsWith('Success') ? 'success' : 'destructive'} className="mb-2">
+                                                            <AlertTitle>{deleteTxFeedback.startsWith('Success') ? 'Success' : 'Error'}</AlertTitle>
+                                                            <AlertDescription>{deleteTxFeedback}</AlertDescription>
+                                                        </Alert>
+                                                    )}
+                                                    {showDeleteConfirm ? (
+                                                        <div className="flex flex-col gap-2 mt-2">
+                                                            <p className="text-sm text-red-500">Are you sure? This cannot be undone.</p>
+                                                            <div className="flex gap-2">
+                                                                <Button
+                                                                    variant="destructive"
+                                                                    onClick={async () => {
+                                                                        setIsDeletingTransactions(true);
+                                                                        setDeleteTxFeedback('');
+                                                                        try {
+                                                                            const res = await api.deleteAllTransactions();
+                                                                            setDeleteTxFeedback('Success: All transactions deleted.');
+                                                                            setShowDeleteConfirm(false);
+                                                                            fetchTransactions(); // Refresh transaction list
+                                                                        } catch (err) {
+                                                                            setDeleteTxFeedback('Error: ' + (err.message || 'Failed to delete transactions.'));
+                                                                        } finally {
+                                                                            setIsDeletingTransactions(false);
+                                                                        }
+                                                                    }}
+                                                                    disabled={isDeletingTransactions}
+                                                                >
+                                                                    {isDeletingTransactions ? 'Deleting...' : 'Yes, Delete All'}
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={() => setShowDeleteConfirm(false)}
+                                                                    disabled={isDeletingTransactions}
+                                                                >
+                                                                    Cancel
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            variant="destructive"
+                                                            onClick={() => { setShowDeleteConfirm(true); setDeleteTxFeedback(''); }}
+                                                            disabled={isDeletingTransactions}
+                                                        >
+                                                            Delete All Transactions
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </>
                                         )}
                                         <UnifiedTransferForm
