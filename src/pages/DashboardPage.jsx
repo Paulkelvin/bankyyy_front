@@ -121,7 +121,7 @@ const DashboardPage = ({ onNavigateToProfile }) => {
             {/* Header Section */}
             <header className="flex flex-wrap justify-between items-center gap-4 mb-6 pb-4 border-b border-gray-200">
                 <div className="flex items-center gap-4">
-                     <h1 className="text-xl md:text-2xl font-semibold text-gray-800">Welcome, {user?.name || 'User'}!</h1>
+                     <h1 className="text-xl md:text-2xl font-semibold text-gray-800">Welcome, {user?.username || user?.name || 'User'}!</h1>
                      <Button onClick={onNavigateToProfile} variant="secondary" size="sm" disabled={isLoggingOut}> View Profile </Button>
                 </div>
                 <Button onClick={logout} variant="outline" size="sm" disabled={isLoggingOut} className="min-w-[80px]">

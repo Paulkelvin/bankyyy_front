@@ -226,7 +226,8 @@ const ProfilePage = ({ onBackToDashboard }) => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                    <p><strong className="font-medium text-gray-600 w-28 inline-block">Name:</strong> {profileData.name}</p>
+                    <p><strong className="font-medium text-gray-600 w-28 inline-block">Username:</strong> {profileData.username || profileData.name}</p>
+                    <p><strong className="font-medium text-gray-600 w-28 inline-block">Full Name:</strong> {profileData.fullName || profileData.name}</p>
                     <p><strong className="font-medium text-gray-600 w-28 inline-block">Email:</strong> {profileData.email}</p>
                     <p><strong className="font-medium text-gray-600 w-28 inline-block">Phone:</strong> {profileData.phoneNumber || <span className="italic text-gray-400">Not Set</span>}</p>
                     <p><strong className="font-medium text-gray-600 w-28 inline-block">Address:</strong> {profileData.address || <span className="italic text-gray-400">Not Set</span>}</p>
@@ -246,9 +247,14 @@ const ProfilePage = ({ onBackToDashboard }) => {
                         {infoUpdateError && <Alert variant="destructive"><AlertTitle>Update Failed</AlertTitle><AlertDescription>{infoUpdateError}</AlertDescription></Alert>}
                         {infoUpdateSuccess && <Alert variant="success"><AlertTitle>Success</AlertTitle><AlertDescription>{infoUpdateSuccess}</AlertDescription></Alert>}
                         {/* Input fields using edit* state */}
+                        {/* Username and Full Name are read-only */}
                         <div className="space-y-1">
-                            <label htmlFor="edit-name" className="text-sm font-medium text-gray-700">Name</label>
-                            <Input id="edit-name" type="text" value={editName} onChange={(e) => setEditName(e.target.value)} required disabled={isUpdatingInfo} />
+                            <label htmlFor="edit-username" className="text-sm font-medium text-gray-700">Username</label>
+                            <Input id="edit-username" type="text" value={profileData.username || profileData.name} readOnly disabled />
+                        </div>
+                        <div className="space-y-1">
+                            <label htmlFor="edit-fullName" className="text-sm font-medium text-gray-700">Full Name</label>
+                            <Input id="edit-fullName" type="text" value={profileData.fullName || profileData.name} readOnly disabled />
                         </div>
                         <div className="space-y-1">
                             <label htmlFor="edit-phone" className="text-sm font-medium text-gray-700">Phone Number</label>

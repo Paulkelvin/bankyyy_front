@@ -18,7 +18,8 @@ const STATUS_SUCCESS = 'success';
 const STATUS_ERROR = 'error';
 
 const RegisterPage = ({ onSwitchToLogin }) => {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   // Get register function and state from context
@@ -62,7 +63,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     // Assuming `register` from useAuth is modified like `login` to return data or false
     // If `register` still sets state directly, this simulation won't work correctly.
     // We proceed assuming `register` returns `{ token, user }` or `false`.
-    const registrationResult = await register({ name, email, password }); // This call needs modification in AuthContext
+    const registrationResult = await register({ username, fullName, email, password }); // This call needs modification in AuthContext
 
     if (registrationResult) { // If API call succeeded (needs adjustment in AuthContext)
         console.log("Registration API successful, starting simulation...");
@@ -122,7 +123,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                 <AlertDescription>{feedbackMessage}</AlertDescription>
              </Alert>
             {/* Inputs */}
-            <div className="space-y-2"> <label htmlFor="name">Name</label> <Input id="name" type="text" placeholder="Your Full Name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isLoading}/> </div>
+            <div className="space-y-2"> <label htmlFor="username">Username</label> <Input id="username" type="text" placeholder="Choose a username" value={username} onChange={(e) => setUsername(e.target.value)} required disabled={isLoading}/> </div>
+            <div className="space-y-2"> <label htmlFor="fullName">Full Name</label> <Input id="fullName" type="text" placeholder="Your Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={isLoading}/> </div>
             <div className="space-y-2"> <label htmlFor="email">Email</label> <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={isLoading}/> </div>
             <div className="space-y-2"> <label htmlFor="password">Password</label> <Input id="password" type="password" placeholder="Min. 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} disabled={isLoading}/> </div>
             {/* Submit Button */}

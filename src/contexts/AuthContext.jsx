@@ -73,13 +73,11 @@ export const AuthProvider = ({ children }) => {
                 setUser(data.user);
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('authUser', JSON.stringify(data.user));
-                // console.log("AuthContext: Registration successful.");
-                return true;
+                return { token: data.token, user: data.user };
             } else { throw new Error(data.message || 'Registration failed: Invalid response.'); }
         } catch (error) {
-            // console.error("Registration failed:", error);
             if (error.status === 409 || error.message?.includes('Duplicate') || error.message?.includes('already exists')) {
-                 setAuthError('Registration failed: Email already exists.');
+                 setAuthError('Registration failed: Email or username already exists.');
             } else {
                  setAuthError(error.message || 'Registration failed.');
             }
