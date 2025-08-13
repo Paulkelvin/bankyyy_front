@@ -12,11 +12,11 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
     const INITIAL_DISPLAY_COUNT = 10;
     const [displayLimit, setDisplayLimit] = useState(INITIAL_DISPLAY_COUNT); // Hook 1
     const [filteredAccountDisplay, setFilteredAccountDisplay] = useState(null); // Hook 2
-    const [showDevPanel, setShowDevPanel] = useState(false); // Hidden tool panel
-    const [isPopulating, setIsPopulating] = useState(false);
-    const [populateMsg, setPopulateMsg] = useState('');
+    const [showDevPanel, setShowDevPanel] = useState(false); // Hook 3
+    const [isPopulating, setIsPopulating] = useState(false); // Hook 4
+    const [populateMsg, setPopulateMsg] = useState(''); // Hook 5
 
-    // Effect to update display info (Hook 3)
+    // Effect to update display info (Hook 6)
     useEffect(() => {
         setDisplayLimit(INITIAL_DISPLAY_COUNT); // Reset pagination on filter change
         if (filterAccountId && Array.isArray(accounts)) {
@@ -32,51 +32,26 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
         }
     }, [filterAccountId, accounts]);
 
-    // Calculate filtered transactions using useMemo (Hook 4)
+    // Auto open dev tools if parent toggles devMode (Hook 7)
+    useEffect(() => { if (devMode) setShowDevPanel(true); }, [devMode]);
+
+    // Calculate filtered transactions using useMemo (Hook 8)
     const filteredTransactions = useMemo(() => {
         const safeTransactions = Array.isArray(transactions) ? transactions : [];
-        // console.log("[TransactionHistory] Raw transactions received in prop:", safeTransactions); // Log raw props
+        if (!filterAccountId) return safeTransactions;
+        return safeTransactions.filter(txn => txn && (txn.accountId === filterAccountId));
+    }, [transactions, filterAccountId]);
 
-        if (!filterAccountId) {
-            return safeTransactions;
-        }
-        // Filter based on accountId. Adjust if incoming transfers use a different field like 'toAccountId' or 'relatedAccountId'.
-        return safeTransactions.filter(txn =>
-            txn && (
-                txn.accountId === filterAccountId
-                // Example: || txn.toAccountId === filterAccountId // Uncomment if using toAccountId
-                // Example: || (txn.relatedAccountId === accounts.find(a=>a._id === filterAccountId)?.accountNumber && txn.type === 'transfer-in') // If using related string
-            )
-        );
-    }, [transactions, filterAccountId /*, accounts */]); // Add accounts if using it in filter logic
-
-    // Filter out potential nulls/invalid AFTER primary filter
+    // Filter out potential nulls/invalid AFTER primary filter (Hook 9)
     const validFilteredTransactions = useMemo(() => {
         return filteredTransactions.filter(txn => txn && typeof txn === 'object' && txn._id);
     }, [filteredTransactions]);
 
-    // --- Conditional returns can happen AFTER all hooks have been called ---
-    if (isLoading) {
-        return <div className="flex justify-center items-center p-4"><Spinner /> Loading transactions...</div>;
-    }
-    if (error) {
-        return <Alert variant="destructive"><AlertTitle>Error Loading History</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>;
-    }
-    // --------------------------------------------------------------------
-
-    // Helper to get account details
-    const getAccountDetails = (accountId) => {
-        if (!accountId) return 'N/A';
-        const account = Array.isArray(accounts) ? accounts.find(acc => acc._id === accountId) : null;
-        // Use nickname if available, otherwise format type/number
-        return account ? (account.accountNickname || `${account.accountType?.charAt(0).toUpperCase() + account.accountType?.slice(1)} (${account.accountNumber})`) : `ID: ...${accountId.slice(-4)}`;
-    };
-
-    // Determine transactions for current page/view
+    // Determine transactions for current page/view (Hook 10)
     const transactionsToDisplay = useMemo(() => {
         const filtered = filteredTransactions.filter(txn => txn && typeof txn === 'object' && txn._id);
         // Sort by (transactionDate || createdAt) desc so newest at top
-        filtered.sort((a,b) => new Date(b.transactionDate || b.createdAt) - new Date(a.transactionDate || a.createdAt));
+        filtered.sort((a, b) => new Date(b.transactionDate || b.createdAt) - new Date(a.transactionDate || a.createdAt));
         return filtered.slice(0, displayLimit);
     }, [filteredTransactions, displayLimit]);
 
