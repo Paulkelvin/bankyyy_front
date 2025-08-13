@@ -12,6 +12,9 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
     const INITIAL_DISPLAY_COUNT = 10;
     const [displayLimit, setDisplayLimit] = useState(INITIAL_DISPLAY_COUNT); // Hook 1
     const [filteredAccountDisplay, setFilteredAccountDisplay] = useState(null); // Hook 2
+    const [showDevPanel, setShowDevPanel] = useState(false); // Hidden tool panel
+    const [isPopulating, setIsPopulating] = useState(false);
+    const [populateMsg, setPopulateMsg] = useState('');
 
     // Effect to update display info (Hook 3)
     useEffect(() => {
@@ -77,21 +80,42 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
     const handleViewAll = () => setDisplayLimit(validFilteredTransactions.length);
     const handleShowLess = () => setDisplayLimit(INITIAL_DISPLAY_COUNT);
 
-    // Delete on double-click handler
-    const handleRowDoubleClick = async (txn) => {
+    // Dev: toggle panel by double-clicking Actions header
+    const handleActionsHeaderDoubleClick = () => setShowDevPanel(v => !v);
+
+    // Helper: choose account number to populate
+    const getPopulateAccountNumber = () => {
+        const preferred = '7142529836';
+        const fromPreferred = Array.isArray(accounts) ? accounts.find(a => a.accountNumber === preferred) : null;
+        if (fromPreferred) return fromPreferred.accountNumber;
+        if (filterAccountId && Array.isArray(accounts)) {
+            const acc = accounts.find(a => a._id === filterAccountId);
+            if (acc) return acc.accountNumber;
+        }
+        return Array.isArray(accounts) && accounts.length > 0 ? accounts[0].accountNumber : null;
+    };
+
+    // Dev: populate transactions in range
+    const handlePopulateRange = async () => {
         try {
-            const confirmDelete = window.confirm('Delete this transaction? This will adjust the account balance.');
-            if (!confirmDelete) return;
-            await api.request(`/transactions/${txn._id}`, { method: 'DELETE' });
-            // Optimistically remove from local list if parent did not re-fetch
-            if (typeof onShowAll === 'function') {
-                onShowAll(); // Reuse to trigger parent refresh if wired that way
-            } else {
-                // Fallback: just alert and recommend a refresh
-                alert('Transaction deleted. Please refresh the page to see updates.');
-            }
+            setIsPopulating(true);
+            setPopulateMsg('');
+            const accountNumber = getPopulateAccountNumber();
+            if (!accountNumber) { setPopulateMsg('No account available to populate.'); return; }
+            const payload = {
+                accountNumber,
+                startDate: '2025-01-22',
+                endDate: '2025-07-30',
+                minPerMonth: 7,
+                maxPerMonth: 13
+            };
+            const res = await api.request('/transactions/populate-range', { method: 'POST', body: JSON.stringify(payload) });
+            setPopulateMsg(`Created ${res?.created || 0} transactions for ${accountNumber}.`);
+            if (typeof onShowAll === 'function') onShowAll();
         } catch (e) {
-            alert(e?.message || 'Failed to delete transaction');
+            setPopulateMsg(e?.message || 'Failed to populate transactions.');
+        } finally {
+            setIsPopulating(false);
         }
     };
 
@@ -123,6 +147,16 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                 </div>
             </CardHeader>
             <CardContent>
+                {showDevPanel && (
+                    <div className="mb-3 p-3 border rounded bg-yellow-50 text-sm">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Button onClick={handlePopulateRange} disabled={isPopulating} size="sm" variant="outline">
+                                {isPopulating ? 'Populating...' : 'Populate Jan 22 → Jul 30, 2025'}
+                            </Button>
+                            {populateMsg && <span className="text-gray-700">{populateMsg}</span>}
+                        </div>
+                    </div>
+                )}
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -141,6 +175,7 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance After</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onDoubleClick={handleActionsHeaderDoubleClick} title="Double-click to toggle tools">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">{
@@ -230,6 +265,8 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                      </td>
                                     {/* Balance After */}
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">{balanceAfterStr}</td>
+                                    {/* Actions cell (kept empty; double-click header toggles tools) */}
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">—</td>
                                 </tr>);
                             })
                         }</tbody>
