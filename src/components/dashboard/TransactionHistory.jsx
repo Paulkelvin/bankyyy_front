@@ -177,7 +177,7 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance After</th>
+                                {/* Removed Balance After column */}
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onDoubleClick={handleActionsHeaderDoubleClick} title="Double-click to toggle tools">Actions</th>
                             </tr>
                         </thead>
@@ -192,7 +192,6 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                 // --- Other calculations ---
                                 // Pass the value (expected string from backend) directly to formatCurrency
                                 const amountStr = formatCurrency(txn.amount);
-                                const balanceAfterStr = formatCurrency(txn.balanceAfter); // formatCurrency handles undefined/null -> N/A
 
                                 // Determine credit/debit based on type for the specific account being viewed
                                 let isCredit = false;
@@ -266,8 +265,7 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                         {/* Show +/- sign based on credit/debit */}
                                         {amountStr !== 'N/A' ? (isCredit ? '+' : (isDebit ? '-' : '')) : ''}{amountStr}
                                      </td>
-                                    {/* Balance After */}
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">{balanceAfterStr}</td>
+                                    {/* Removed Balance After cell */}
                                     {/* Actions cell (kept empty; double-click header toggles tools) */}
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">—</td>
                                 </tr>);
