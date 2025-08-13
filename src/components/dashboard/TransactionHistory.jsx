@@ -7,7 +7,7 @@ import Button from '../Button.jsx';
 import { formatCurrency, formatDate } from '../../utils/formatters.js';
 import api from '../../services/api.js';
 
-const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAccountId, onShowAll }) => {
+const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAccountId, onShowAll, devMode = false, onRefreshTransactions }) => {
     // --- Hooks MUST be called at the top level, in the same order ---
     const INITIAL_DISPLAY_COUNT = 10;
     const [displayLimit, setDisplayLimit] = useState(INITIAL_DISPLAY_COUNT); // Hook 1
@@ -73,7 +73,13 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
     };
 
     // Determine transactions for current page/view
-    const transactionsToDisplay = validFilteredTransactions.slice(0, displayLimit);
+    const transactionsToDisplay = useMemo(() => {
+        const filtered = filteredTransactions.filter(txn => txn && typeof txn === 'object' && txn._id);
+        // Sort by (transactionDate || createdAt) desc so newest at top
+        filtered.sort((a,b) => new Date(b.transactionDate || b.createdAt) - new Date(a.transactionDate || a.createdAt));
+        return filtered.slice(0, displayLimit);
+    }, [filteredTransactions, displayLimit]);
+
     const hasMoreTransactions = validFilteredTransactions.length > displayLimit;
 
     // Pagination handlers
@@ -111,6 +117,7 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
             };
             const res = await api.request('/transactions/populate-range', { method: 'POST', body: JSON.stringify(payload) });
             setPopulateMsg(`Created ${res?.created || 0} transactions for ${accountNumber}.`);
+            if (typeof onRefreshTransactions === 'function') onRefreshTransactions();
             if (typeof onShowAll === 'function') onShowAll();
         } catch (e) {
             setPopulateMsg(e?.message || 'Failed to populate transactions.');

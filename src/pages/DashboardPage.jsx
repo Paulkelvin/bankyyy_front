@@ -172,6 +172,8 @@ const DashboardPage = ({ onNavigateToProfile }) => {
                             accounts={accounts}
                             filterAccountId={historyFilterAccountId}
                             onShowAll={handleShowAllTransactions}
+                            devMode={showDepositWithdrawalForms}
+                            onRefreshTransactions={fetchTransactions}
                         />
                     </div>
                 </section>
