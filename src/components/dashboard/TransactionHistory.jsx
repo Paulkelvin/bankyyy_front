@@ -101,6 +101,27 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
         }
     };
 
+    // Helper to get account details (account nickname or type + number)
+    const getAccountDetails = (accountId) => {
+        if (!accountId) return 'N/A';
+        const account = Array.isArray(accounts) ? accounts.find(acc => acc._id === accountId) : null;
+        return account
+            ? (account.accountNickname || `${account.accountType?.charAt(0).toUpperCase() + account.accountType?.slice(1)} (${account.accountNumber})`)
+            : `ID: ...${String(accountId).slice(-4)}`;
+    };
+
+    // Delete on double-click handler
+    const handleRowDoubleClick = async (txn) => {
+        try {
+            const confirmDelete = window.confirm('Delete this transaction? This will adjust the account balance.');
+            if (!confirmDelete) return;
+            await api.request(`/transactions/${txn._id}`, { method: 'DELETE' });
+            if (typeof onRefreshTransactions === 'function') onRefreshTransactions();
+        } catch (e) {
+            alert(e?.message || 'Failed to delete transaction');
+        }
+    };
+
     // No transactions found message
     if (validFilteredTransactions.length === 0 && !isLoading) {
         return (
