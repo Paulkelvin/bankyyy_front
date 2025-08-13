@@ -5,6 +5,7 @@ import { Alert, AlertTitle, AlertDescription } from '../Alert.jsx';
 import Spinner from '../Spinner.jsx';
 import Button from '../Button.jsx';
 import { formatCurrency, formatDate } from '../../utils/formatters.js';
+import api from '../../services/api.js';
 
 const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAccountId, onShowAll }) => {
     // --- Hooks MUST be called at the top level, in the same order ---
@@ -76,6 +77,24 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
     const handleViewAll = () => setDisplayLimit(validFilteredTransactions.length);
     const handleShowLess = () => setDisplayLimit(INITIAL_DISPLAY_COUNT);
 
+    // Delete on double-click handler
+    const handleRowDoubleClick = async (txn) => {
+        try {
+            const confirmDelete = window.confirm('Delete this transaction? This will adjust the account balance.');
+            if (!confirmDelete) return;
+            await api.request(`/transactions/${txn._id}`, { method: 'DELETE' });
+            // Optimistically remove from local list if parent did not re-fetch
+            if (typeof onShowAll === 'function') {
+                onShowAll(); // Reuse to trigger parent refresh if wired that way
+            } else {
+                // Fallback: just alert and recommend a refresh
+                alert('Transaction deleted. Please refresh the page to see updates.');
+            }
+        } catch (e) {
+            alert(e?.message || 'Failed to delete transaction');
+        }
+    };
+
     // No transactions found message
     if (validFilteredTransactions.length === 0 && !isLoading) {
         return (
@@ -117,8 +136,9 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                 {filterAccountId && (
                                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Related Info</th>
                                 )}
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                {/* Swap: Description before Type */}
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance After</th>
                             </tr>
@@ -183,7 +203,7 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                 }
                                 // -----------------------
 
-                                return (<tr key={txn._id} className="hover:bg-gray-50">
+                                return (<tr key={txn._id} className="hover:bg-gray-50" onDoubleClick={() => handleRowDoubleClick(txn)}>
                                     {/* Date */}
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                         {displayDate}
@@ -198,10 +218,9 @@ const TransactionHistory = ({ transactions, isLoading, error, accounts, filterAc
                                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 max-w-[150px] truncate" title={relatedInfo}>{relatedInfo}</td>
                                      )}
 
-                                    {/* Type */}
-                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 capitalize">{txn.type?.replace('-', ' ') || 'N/A'}</td>
-                                    {/* Description */}
+                                    {/* Swap: Description before Type */}
                                     <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate" title={txn.description}>{txn.description || '-'}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 capitalize">{txn.type?.replace('-', ' ') || 'N/A'}</td>
                                     {/* Amount */}
                                     <td className={`px-4 py-3 whitespace-nowrap text-sm text-right font-medium ${
                                          isCredit ? 'text-green-600' : (isDebit ? 'text-red-600' : 'text-gray-700') // Color based on credit/debit
